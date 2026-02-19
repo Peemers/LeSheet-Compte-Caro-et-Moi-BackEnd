@@ -1,0 +1,21 @@
+﻿# Build
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Rider / JetBrains
+.idea/
+**/.idea/
+
+# VS
+.vs/
+**/.vs/
+
+# .NET
+*.dll
+*.exe
+*.pdb
+*.cache
+*.deps.json
+*.runtimeconfig.json
