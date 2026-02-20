@@ -8,7 +8,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="818625fd-ddb5-4bfd-a958-43e851155af1" name="Changes" comment="" />
+    <list default="true" id="818625fd-ddb5-4bfd-a958-43e851155af1" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.LeSheet/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LeSheet/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeSheet/Data/AppDataContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LeSheet/Data/AppDataContext.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeSheet/Migrations/20260219173635_InitialCreate.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeSheet/Migrations/20260219173635_InitialCreate.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeSheet/Migrations/AppDataContextModelSnapshot.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeSheet/Models/Domain.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LeSheet/Models/Domain.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeSheet/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LeSheet/Program.cs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,12 +28,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Peemers/LeSheet-Compte-Caro-et-Moi-BackEnd.git",
-    "accountId": "6ca7ac57-8f38-4693-996a-00467dde63c2"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Peemers&quot;
   }
-}]]></component>
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Peemers/LeSheet-Compte-Caro-et-Moi-BackEnd.git&quot;,
+    &quot;accountId&quot;: &quot;6ca7ac57-8f38-4693-996a-00467dde63c2&quot;
+  }
+}</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/LeSheet/Data/AppDataContext.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/LeSheet/Models/Domain.cs" root0="FORCE_HIGHLIGHTING" />
@@ -42,10 +56,11 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    ".NET Launch Settings Profile.LeSheet: http.executor": "Debug",
+    ".NET Launch Settings Profile.LeSheet: http.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "git-widget-placeholder": "main",
     "node.js.detected.package.eslint": "true",
@@ -99,7 +114,8 @@
       <option name="presentableId" value="Default" />
       <updated>1771518869388</updated>
       <workItem from="1771518870419" duration="14302000" />
-      <workItem from="1771534457503" duration="3443000" />
+      <workItem from="1771534457503" duration="8283000" />
+      <workItem from="1771574992860" duration="3806000" />
     </task>
     <task id="LOCAL-00001" summary="BackEnd fini presque. No connectionStringForGit">
       <option name="closed" value="true" />
@@ -109,7 +125,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771537789138</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="backup">
+      <option name="closed" value="true" />
+      <created>1771538258123</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1771538258123</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -131,7 +155,8 @@
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="BackEnd fini presque. No connectionStringForGit" />
-    <option name="LAST_COMMIT_MESSAGE" value="BackEnd fini presque. No connectionStringForGit" />
+    <MESSAGE value="backup" />
+    <option name="LAST_COMMIT_MESSAGE" value="backup" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

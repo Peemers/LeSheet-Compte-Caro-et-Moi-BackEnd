@@ -36,6 +36,13 @@ app.MapPost("/api/setup", async (AppDataContext db) =>
 
 app.MapPost("/api/depenses", async (DepenseCreateDto dto, AppDataContext db) =>
 {
+  var userExists = await db.Users.AnyAsync(u => u.Id == dto.PaidByUserId);
+
+  if (!userExists)
+  {
+    return Results.BadRequest($"L'utilisateur avec l'ID {dto.PaidByUserId} n'existe pas");
+  }
+  
   var nouvelleDepense = new Depense
   {
     Description = dto.Description,
@@ -46,6 +53,11 @@ app.MapPost("/api/depenses", async (DepenseCreateDto dto, AppDataContext db) =>
   db.Depenses.Add(nouvelleDepense);
   await db.SaveChangesAsync();
   return Results.Created($"/api/depenses/{nouvelleDepense.Id}", nouvelleDepense);
+});
+
+app.MapGet("/api/depenses", async (AppDataContext db) =>
+{
+  return Results.Ok(await db.Depenses.OrderBy(d => d.Date).ToListAsync());
 });
 
 app.MapPost("/api/remboursement", async (RemboursementCreateDto dto, AppDataContext db) =>
@@ -89,7 +101,7 @@ app.MapGet("api/Balance", async (AppDataContext db) =>
 
   decimal balanceUser1 = (totalPayeParUser1 / 2) - (totalPayeParUser2 / 2) + remboursementUser2VersUser1 - remboursementUser1VersUser2;
 
-  string message = balanceUser1 > 0 ? $"{u2.Name} doit {balanceUser1:f2}€ à {u1.Name}" : $"{Math.Abs(balanceUser1):F2}€ à {u2.Name}";
+  string message = balanceUser1 > 0 ? $"{u2.Name} doit {balanceUser1:f2}€ à {u1.Name}" : $"{u1.Name} doit : {Math.Abs(balanceUser1):F2}€ à {u2.Name}";
 
   var response = new BalanceResponseDto(
     u1.Name,
