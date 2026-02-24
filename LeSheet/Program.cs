@@ -12,6 +12,8 @@ builder.Services.AddDbContext<AppDataContext>(options =>
 
 //recup allowedOrigin
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
+Console.WriteLine($"CORS configurés pour : {string.Join(", ", allowedOrigins ?? [])}");
+
 builder.Services.AddCors(option =>
 {
   option.AddPolicy("AllowAngular", policy =>
