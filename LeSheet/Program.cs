@@ -10,12 +10,22 @@ var connectionStrings = builder.Configuration.GetConnectionString("DefaultConnec
 builder.Services.AddDbContext<AppDataContext>(options =>
   options.UseSqlServer(connectionStrings));
 
-builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+//recup allowedOrigin
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
+builder.Services.AddCors(option =>
+{
+  option.AddPolicy("AllowAngular", policy =>
+  {
+    policy.WithOrigins(allowedOrigins ?? []);
+    policy.AllowAnyHeader();
+    policy.AllowAnyMethod();
+  });
+});
 
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
-app.UseCors();
+app.UseCors("AllowAngular");
 
 app.MapPost("/api/setup", async (AppDataContext db) =>
 {
@@ -36,13 +46,17 @@ app.MapPost("/api/setup", async (AppDataContext db) =>
 
 app.MapPost("/api/depenses", async (DepenseCreateDto dto, AppDataContext db) =>
 {
+  if (dto.Amount <= 0)
+  {
+    return Results.BadRequest("Le montant doit etre superieur à 0");
+  }
   var userExists = await db.Users.AnyAsync(u => u.Id == dto.PaidByUserId);
 
   if (!userExists)
   {
     return Results.BadRequest($"L'utilisateur avec l'ID {dto.PaidByUserId} n'existe pas");
   }
-  
+
   var nouvelleDepense = new Depense
   {
     Description = dto.Description,
@@ -55,14 +69,13 @@ app.MapPost("/api/depenses", async (DepenseCreateDto dto, AppDataContext db) =>
   return Results.Created($"/api/depenses/{nouvelleDepense.Id}", nouvelleDepense);
 });
 
-app.MapGet("/api/depenses", async (AppDataContext db) =>
-{
-  return Results.Ok(await db.Depenses.OrderBy(d => d.Date).ToListAsync());
-});
-
 app.MapPost("/api/remboursement", async (RemboursementCreateDto dto, AppDataContext db) =>
 {
-  var nouveauReboursement = new Remboursement
+  if (dto.Amount <= 0)
+  {
+    return Results.BadRequest("Un remboursement doit avoir un montant positif");
+  }
+  var nouveauRemboursement = new Remboursement
   {
     Amount = dto.Amount,
     FromUserId = dto.FromUserId,
@@ -70,12 +83,51 @@ app.MapPost("/api/remboursement", async (RemboursementCreateDto dto, AppDataCont
     Date = DateTime.UtcNow
   };
 
-  db.Remboursements.Add(nouveauReboursement);
+  db.Remboursements.Add(nouveauRemboursement);
   await db.SaveChangesAsync();
-  return Results.Ok("Montant du remboursement calculé");
+  return Results.Ok("Remboursement enregistré avec succès");
 });
 
-app.MapGet("api/Balance", async (AppDataContext db) =>
+app.MapGet("/api/depenses", async (AppDataContext db) =>
+{
+  var depenses = await db.Depenses
+    .Select(d => new HistoryItemDto(d.Id, d.Description, d.Amount, d.PaidByUserId, d.Date, false))
+    .ToListAsync();
+
+
+  var remboursements = await db.Remboursements
+    .Select(r => new HistoryItemDto(r.Id, "Remboursement ✅", r.Amount, r.FromUserId, r.Date, true))
+    .ToListAsync();
+
+
+  var historique = depenses
+    .Concat(remboursements)
+    .OrderByDescending(x => x.Date)
+    .ToList();
+
+  return Results.Ok(historique);
+});
+
+app.MapDelete("/api/depenses/{id:int}", async (int id, bool isRemboursement, AppDataContext context) =>
+{
+  if (isRemboursement)
+  {
+    var remb = await context.Remboursements.FindAsync(id);
+    if (remb == null) return Results.NotFound();
+    context.Remboursements.Remove(remb);
+  }
+  else
+  {
+    var depense = await context.Depenses.FindAsync(id);
+    if (depense == null) return Results.NotFound();
+    context.Depenses.Remove(depense);
+  }
+
+  await context.SaveChangesAsync();
+  return Results.NoContent();
+});
+
+app.MapGet("/api/Balance", async (AppDataContext db) =>
 {
   var users = await db.Users.ToListAsync();
   if (users.Count < 2) return Results.BadRequest("Il faut entrer les 2 utilisateurs pour pouvoir calculer.");
@@ -99,7 +151,8 @@ app.MapGet("api/Balance", async (AppDataContext db) =>
     .Where(r => r.FromUserId == u1.Id && r.ToUserId == u2.Id)
     .SumAsync(r => r.Amount);
 
-  decimal balanceUser1 = (totalPayeParUser1 / 2) - (totalPayeParUser2 / 2) + remboursementUser2VersUser1 - remboursementUser1VersUser2;
+  decimal detteBrute = (totalPayeParUser1 / 2m) - (totalPayeParUser2 / 2m);
+  decimal balanceUser1 = detteBrute - remboursementUser2VersUser1 + remboursementUser1VersUser2;
 
   string message = balanceUser1 > 0 ? $"{u2.Name} doit {balanceUser1:f2}€ à {u1.Name}" : $"{u1.Name} doit : {Math.Abs(balanceUser1):F2}€ à {u2.Name}";
 
@@ -122,5 +175,6 @@ if (app.Environment.IsDevelopment())
   app.MapScalarApiReference();
 }
 
-
 app.Run();
+
+public record HistoryItemDto(int Id, string Description, decimal Amount, int PaidByUserId, DateTime Date, bool IsRemboursement);

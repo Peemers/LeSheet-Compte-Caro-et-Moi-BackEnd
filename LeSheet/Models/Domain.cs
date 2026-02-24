@@ -12,11 +12,13 @@ public class User
 public record DepenseCreateDto
 {
   [Required(ErrorMessage = "La description est obligatoire")]
-  [MinLength(3, ErrorMessage = "La description doit faire au moins 3 caractères")]
+  [StringLength(100, MinimumLength = 3, ErrorMessage = "La déscription doit comporter en 3 et 100 caracteres")]
   public required string  Description { get; set; }
   
-  [Range(0.01, 10000, ErrorMessage = "Le montant doit etre superieur à 0")]
+  [Required]
+  [Range(0, 2500, ErrorMessage = "Le montant doit etre > à 0 et < à 2500")]
   public required decimal Amount { get; set; }
+  [Required]
   public required int PaidByUserId { get; set; }
 };
 
@@ -31,8 +33,12 @@ public class Depense
 
 public record RemboursementCreateDto
 {
+  [Required]
+  [Range(0, 2500, ErrorMessage = "Le montant du remboursement doit etre > à 0 et < à 2500")]
   public required decimal Amount { get; set; }
+  [Required]
   public required int FromUserId { get; set; }
+  [Required]
   public required int ToUserId { get; set; }
 };
 public class Remboursement
