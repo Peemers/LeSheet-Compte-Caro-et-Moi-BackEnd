@@ -7,7 +7,7 @@ public class User
   public int Id { get; set; }
   public string Name { get; set; } = "";
   [Required(ErrorMessage = "Password Obligatoire")]
-  [StringLength(20, MinimumLength = 8, ErrorMessage = "Le password doit comporter entre 8 et 20 caracteres")]
+  [StringLength(100, MinimumLength = 8, ErrorMessage = "Le password doit comporter entre 8 et 20 caracteres")]
   public string Password { get; set; } = "";
 }
 
@@ -21,8 +21,6 @@ public record DepenseCreateDto
   [Required]
   [Range(0, 2500, ErrorMessage = "Le montant doit etre > à 0 et < à 2500")]
   public required decimal Amount { get; set; }
-  [Required]
-  public required int PaidByUserId { get; set; }
 };
 
 public class Depense
@@ -39,8 +37,6 @@ public record RemboursementCreateDto
   [Required]
   [Range(0, 2500, ErrorMessage = "Le montant du remboursement doit etre > à 0 et < à 2500")]
   public required decimal Amount { get; set; }
-  [Required]
-  public required int FromUserId { get; set; }
   [Required]
   public required int ToUserId { get; set; }
 };

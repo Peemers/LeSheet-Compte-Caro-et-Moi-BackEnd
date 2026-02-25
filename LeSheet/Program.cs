@@ -78,23 +78,15 @@ app.UseCors("AllowAngular");
 app.UseAuthentication();
 app.UseAuthorization();
 
-IResult SetupUseJwt(ClaimsPrincipal user)
-{
-  var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-  if (userIdClaim == null) return Results.Unauthorized();
-  var userId = int.Parse(userIdClaim);
-  return SetupUseJwt(user);
-}
-
 //routes
 
 #region POSTlogin
 
-app.MapPost("/api/login", async (string name, AppDataContext db) =>
+app.MapPost("/api/login", async (string name, string password, AppDataContext db) =>
 {
   var user = await db.Users.FirstOrDefaultAsync(u => u.Name == name);
 
-  if (user == null)
+  if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
     return Results.Unauthorized();
 
   var claims = new[]
@@ -124,10 +116,13 @@ app.MapPost("/api/setup", async (AppDataContext db) =>
   if (await db.Users.AnyAsync())
     return Results.BadRequest("Les utilisateurs existent deja");
 
+  var passwordClair = "VotreMDPSecret";
+  var passwordHash = BCrypt.Net.BCrypt.HashPassword(passwordClair);
+
   var users = new List<User>
   {
-    new User { Name = "Mathieu" },
-    new User { Name = "Caroline" }
+    new User { Name = "Mathieu", Password = passwordHash},
+    new User { Name = "Caroline", Password = passwordHash}
   };
 
   db.Users.AddRange(users);
@@ -142,17 +137,7 @@ app.MapPost("/api/setup", async (AppDataContext db) =>
 
 app.MapPost("/api/depenses", async (DepenseCreateDto dto, AppDataContext db, ClaimsPrincipal user) =>
 {
-  if (dto.Amount <= 0)
-  {
-    return Results.BadRequest("Le montant doit etre superieur à 0");
-  }
-  var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-  
-  if (userIdClaim == null)
-    return Results.Unauthorized();
-  
-  var userId = int.Parse(userIdClaim);
-  
+  var userId = user.GetId();
   var nouvelleDepense = new Depense
   {
     Description = dto.Description,
@@ -176,17 +161,11 @@ app.MapPost("/api/remboursement", async (RemboursementCreateDto dto, AppDataCont
     return Results.BadRequest("Un remboursement doit avoir un montant positif");
   }
   
-  var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-  
-  if (userIdClaim == null) return Results.Unauthorized();
-  
-  var userId = int.Parse(userIdClaim);
-  
   var nouveauRemboursement = new Remboursement
   {
     Amount = dto.Amount,
-    FromUserId = userId,
-    ToUserId = dto.FromUserId,
+    FromUserId = user.GetId(),
+    ToUserId = dto.ToUserId,
     Date = DateTime.UtcNow
   };
 
@@ -289,12 +268,29 @@ app.MapGet("/api/Balance", async (AppDataContext db) =>
 
 #endregion
 
+#region Scalar
+
 if (app.Environment.IsDevelopment())
 {
   app.MapOpenApi();
   app.MapScalarApiReference();
 }
 
+#endregion
+
 app.Run();
 
 public record HistoryItemDto(int Id, string Description, decimal Amount, int PaidByUserId, DateTime Date, bool IsRemboursement);
+
+public static class ClaimsPrincipalExtensions
+{
+  public static int GetId(this ClaimsPrincipal user)
+  {
+    var claimValue = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(claimValue))
+    {
+      throw new UnauthorizedAccessException("Jeton invalide (ID)");
+    }
+    return  int.Parse(claimValue);
+  }
+}

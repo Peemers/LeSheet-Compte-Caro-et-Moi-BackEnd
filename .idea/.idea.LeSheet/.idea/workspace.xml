@@ -9,7 +9,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="818625fd-ddb5-4bfd-a958-43e851155af1" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.LeSheet/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LeSheet/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeSheet/LeSheet.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/LeSheet/LeSheet.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LeSheet/Models/Domain.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LeSheet/Models/Domain.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeSheet/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LeSheet/Program.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +38,7 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/5b2d68ea450bffd43c87d5273796ea4a6a3ded169a412186c5c527a5a39dd/Results.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/LeSheet/Data/AppDataContext.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/LeSheet/Models/Domain.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
@@ -48,24 +52,24 @@
     <option name="showLibraryContents" value="true" />
     <option name="sortKey" value="BY_TIME_ASCENDING" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Launch Settings Profile.LeSheet: http.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;SolutionBuilderGeneralOptionsPage&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Launch Settings Profile.LeSheet: http.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "SolutionBuilderGeneralOptionsPage",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected=".NET Launch Settings Profile.LeSheet: http">
     <configuration name="LeSheet: http" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/LeSheet/LeSheet.csproj" />
@@ -114,7 +118,7 @@
       <workItem from="1771870556147" duration="2728000" />
       <workItem from="1771955847515" duration="4111000" />
       <workItem from="1772023336488" duration="23000" />
-      <workItem from="1772029358751" duration="9570000" />
+      <workItem from="1772029358751" duration="19712000" />
     </task>
     <task id="LOCAL-00001" summary="BackEnd fini presque. No connectionStringForGit">
       <option name="closed" value="true" />
@@ -164,7 +168,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772041563384</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="add password à user, efmigrations, databaseupdate">
+      <option name="closed" value="true" />
+      <created>1772042295861</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1772042295861</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -191,7 +203,8 @@
     <MESSAGE value="ajout cors prod/dev, toi le petit malin. Tu peux tenter la ConnectionString, la db n'est qu'en local pour l'instant ;)" />
     <MESSAGE value="correction cors" />
     <MESSAGE value="Ajout jwToken sur la min api (c'est pas très propre) mais petite app pour caro et moi. Ajout route login, ajout de regions dans le Program.cs" />
-    <option name="LAST_COMMIT_MESSAGE" value="Ajout jwToken sur la min api (c'est pas très propre) mais petite app pour caro et moi. Ajout route login, ajout de regions dans le Program.cs" />
+    <MESSAGE value="add password à user, efmigrations, databaseupdate" />
+    <option name="LAST_COMMIT_MESSAGE" value="add password à user, efmigrations, databaseupdate" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -210,5 +223,10 @@
         </breakpoint>
       </breakpoints>
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="LaunchSettings">
+        <watch expression="this" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>
