@@ -1,11 +1,25 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using LeSheet.Models;
 using Microsoft.EntityFrameworkCore;
 using LeSheet.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens.Experimental;
 using Scalar.AspNetCore;
+
+#region Récupération diverses
 
 var builder = WebApplication.CreateBuilder(args);
 
+//recup appsettings.json
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
+
+//recup cnstrg
 var connectionStrings = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDataContext>(options =>
   options.UseSqlServer(connectionStrings));
@@ -14,6 +28,11 @@ builder.Services.AddDbContext<AppDataContext>(options =>
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
 Console.WriteLine($"CORS configurés pour : {string.Join(", ", allowedOrigins ?? [])}");
 
+#endregion
+
+#region CORS
+
+//cors
 builder.Services.AddCors(option =>
 {
   option.AddPolicy("AllowAngular", policy =>
@@ -24,10 +43,81 @@ builder.Services.AddCors(option =>
   });
 });
 
+#endregion
+
+#region Configuration Jwtoken
+
+builder.Services.AddAuthentication(Options =>
+  {
+    Options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    Options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+  })
+  .AddJwtBearer(Options =>
+  {
+    Options.TokenValidationParameters = new TokenValidationParameters
+    {
+      ValidateIssuer = true,
+      ValidateAudience = true,
+      ValidateLifetime = true,
+      ValidateIssuerSigningKey = true,
+      ValidIssuer = jwtSettings["Issuer"],
+      ValidAudience = jwtSettings["Audience"],
+      IssuerSigningKey = new SymmetricSecurityKey(key),
+    };
+  });
+
+#endregion
+
 builder.Services.AddOpenApi();
+builder.Services.AddAuthorization();
+
 
 var app = builder.Build();
 app.UseCors("AllowAngular");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+IResult SetupUseJwt(ClaimsPrincipal user)
+{
+  var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+  if (userIdClaim == null) return Results.Unauthorized();
+  var userId = int.Parse(userIdClaim);
+  return SetupUseJwt(user);
+}
+
+//routes
+
+#region POSTlogin
+
+app.MapPost("/api/login", async (string name, AppDataContext db) =>
+{
+  var user = await db.Users.FirstOrDefaultAsync(u => u.Name == name);
+
+  if (user == null)
+    return Results.Unauthorized();
+
+  var claims = new[]
+  {
+    new Claim(ClaimTypes.Name, user.Name),
+    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+  };
+  
+  var creds = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+
+  var token = new JwtSecurityToken(
+    issuer: jwtSettings["Issuer"],
+    audience: jwtSettings["Audience"],
+    claims: claims,
+    expires: DateTime.UtcNow.AddMinutes(30),
+    signingCredentials: creds
+  );
+  return Results.Ok(new {token = new JwtSecurityTokenHandler().WriteToken(token)});
+});
+
+#endregion
+
+#region POSTsetup
 
 app.MapPost("/api/setup", async (AppDataContext db) =>
 {
@@ -46,49 +136,68 @@ app.MapPost("/api/setup", async (AppDataContext db) =>
   return Results.Ok("profil ok");
 });
 
-app.MapPost("/api/depenses", async (DepenseCreateDto dto, AppDataContext db) =>
+#endregion
+
+#region POSTdepenses
+
+app.MapPost("/api/depenses", async (DepenseCreateDto dto, AppDataContext db, ClaimsPrincipal user) =>
 {
   if (dto.Amount <= 0)
   {
     return Results.BadRequest("Le montant doit etre superieur à 0");
   }
-  var userExists = await db.Users.AnyAsync(u => u.Id == dto.PaidByUserId);
-
-  if (!userExists)
-  {
-    return Results.BadRequest($"L'utilisateur avec l'ID {dto.PaidByUserId} n'existe pas");
-  }
-
+  var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+  
+  if (userIdClaim == null)
+    return Results.Unauthorized();
+  
+  var userId = int.Parse(userIdClaim);
+  
   var nouvelleDepense = new Depense
   {
     Description = dto.Description,
     Amount = dto.Amount,
-    PaidByUserId = dto.PaidByUserId
+    PaidByUserId = userId
   };
 
   db.Depenses.Add(nouvelleDepense);
   await db.SaveChangesAsync();
   return Results.Created($"/api/depenses/{nouvelleDepense.Id}", nouvelleDepense);
-});
+}).RequireAuthorization();
 
-app.MapPost("/api/remboursement", async (RemboursementCreateDto dto, AppDataContext db) =>
+#endregion
+
+#region POSTremboursement
+
+app.MapPost("/api/remboursement", async (RemboursementCreateDto dto, AppDataContext db, ClaimsPrincipal user) =>
 {
   if (dto.Amount <= 0)
   {
     return Results.BadRequest("Un remboursement doit avoir un montant positif");
   }
+  
+  var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+  
+  if (userIdClaim == null) return Results.Unauthorized();
+  
+  var userId = int.Parse(userIdClaim);
+  
   var nouveauRemboursement = new Remboursement
   {
     Amount = dto.Amount,
-    FromUserId = dto.FromUserId,
-    ToUserId = dto.ToUserId,
+    FromUserId = userId,
+    ToUserId = dto.FromUserId,
     Date = DateTime.UtcNow
   };
 
   db.Remboursements.Add(nouveauRemboursement);
   await db.SaveChangesAsync();
   return Results.Ok("Remboursement enregistré avec succès");
-});
+}).RequireAuthorization();
+
+#endregion
+
+#region GETdepenses
 
 app.MapGet("/api/depenses", async (AppDataContext db) =>
 {
@@ -108,7 +217,11 @@ app.MapGet("/api/depenses", async (AppDataContext db) =>
     .ToList();
 
   return Results.Ok(historique);
-});
+}).RequireAuthorization();
+
+#endregion
+
+#region DELETE
 
 app.MapDelete("/api/depenses/{id:int}", async (int id, bool isRemboursement, AppDataContext context) =>
 {
@@ -127,7 +240,11 @@ app.MapDelete("/api/depenses/{id:int}", async (int id, bool isRemboursement, App
 
   await context.SaveChangesAsync();
   return Results.NoContent();
-});
+}).RequireAuthorization();
+
+#endregion
+
+#region GETbalance
 
 app.MapGet("/api/Balance", async (AppDataContext db) =>
 {
@@ -166,10 +283,11 @@ app.MapGet("/api/Balance", async (AppDataContext db) =>
     balanceUser1,
     message
   );
-
-
+  
   return Results.Ok(response);
-});
+}).RequireAuthorization();
+
+#endregion
 
 if (app.Environment.IsDevelopment())
 {
