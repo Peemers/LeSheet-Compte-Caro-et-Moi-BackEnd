@@ -6,6 +6,9 @@ public class User
 {
   public int Id { get; set; }
   public string Name { get; set; } = "";
+  [Required(ErrorMessage = "Password Obligatoire")]
+  [StringLength(20, MinimumLength = 8, ErrorMessage = "Le password doit comporter entre 8 et 20 caracteres")]
+  public string Password { get; set; } = "";
 }
 
 
